@@ -7,37 +7,7 @@ from langchain_community.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from PyPDF2 import PdfReader
 import os
-
-specific_pages = [3]
-
-def extract_and_process_pdf_long(pdf_file_paths, specific_pages):
-    all_data = []
-    for pdf_file_path in pdf_file_paths:
-        # Extract text from the PDF from specified pages only
-        pdf_text = ""
-        with open(pdf_file_path, 'rb') as f:
-            pdf_reader = PdfReader(f)
-            for page_number in specific_pages:
-                try:
-                    page = pdf_reader.pages[page_number - 1]  # Adjust for zero-based index
-                    pdf_text += page.extract_text() or ""
-                except IndexError:
-                    print(f"Page {page_number} does not exist in {pdf_file_path}.")
-
-        # Create a temporary text file
-        temp_txt_filename = pdf_file_path.replace('.pdf', '.txt')
-        with open(temp_txt_filename, 'w', encoding='utf-8') as f:
-            f.write(pdf_text)
-
-        # Use the extracted text file for further processing
-        loader = TextLoader(file_path=temp_txt_filename, encoding="utf-8")
-        data = loader.load()
-        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        data = text_splitter.split_documents(data)
-        all_data.extend(data)
-    
-    return all_data
-
+import streamlit as st
 
 def extract_and_process_pdf(pdf_file_paths):
     all_data = []
@@ -72,7 +42,7 @@ def create_conversation_chain(processed_texts, api_key):
     vectorstore = FAISS.from_documents(processed_texts, embedding=embeddings)
 
     # Create conversation chain
-    llm = ChatOpenAI(temperature=0.7, model_name="gpt-4")
+    llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo")
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -83,7 +53,7 @@ def create_conversation_chain(processed_texts, api_key):
     return conversation_chain
 
 # Input your OpenAI API key here
-api_key = "api-key"
+api_key = "api_key_here"
 
 # Define the list of PDF files
 pdf_files = [
@@ -92,29 +62,26 @@ pdf_files = [
     "trip_plans/grecia.pdf"
 ]
 
-pdf_files_long = [
-    "trip_plans/eurotrip.pdf"
-]
-
-# Define the query
-query = "Que paises estan siendo mencionados?"
-
-# Extract and process PDF text for all documents
-processed_texts_long = extract_and_process_pdf_long(pdf_files_long, specific_pages)
 processed_texts = extract_and_process_pdf(pdf_files)
-
-# Group the processed texts and processed texts long
-processed_texts = processed_texts + processed_texts_long
-
-
-
-
-# Create conversation chain with combined processed text
 conversation_chain = create_conversation_chain(processed_texts, api_key)
+query = "What are the top attractions in Italy?"
 
-# Query the conversation chain
-result = conversation_chain({"question": query})
-answer = result["answer"]
+def generate_conversation(user_input, conversation_chain):
+    # Check if the user wants to exit the conversation
+    if user_input.lower() == "exit":
+        return "Goodbye!"
 
-# Print the answer
-print("Answer:", answer)
+    # Send the user input to the conversation chain
+    result = conversation_chain({"question": user_input})
+
+    # Get the answer from the result
+    answer = result["answer"]
+
+    # Return the answer directly
+    return answer
+
+
+if __name__ == "__main__":
+    generate_conversation(query, conversation_chain)
+
+
