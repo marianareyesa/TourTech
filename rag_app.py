@@ -1,5 +1,6 @@
 import streamlit as st
 from travel_generator import generate_and_save_travel_plan, check_existing_travel_plan
+from rag import generate_conversation, query, conversation_chain
 
 def main():
     st.title("Travel Planning Helper")
@@ -8,9 +9,22 @@ def main():
     with col1:
         if st.button('Plan a New Trip'):
             st.session_state.check_country = True
+
     with col2:
         if st.button('Previous Countries'):
-            st.write("Soon to be released")
+            st.session_state.previous_countries = True  # Maintain state for RAG section
+
+    if 'previous_countries' in st.session_state and st.session_state.previous_countries:
+        st.title("RAG Model Conversation")
+        user_input = st.text_input("You:", key="user_input")
+
+        if st.button("Ask", key="ask_button"):
+            # Call to RAG generate_conversation function and store result directly in session state
+            st.session_state.answer = generate_conversation(user_input, conversation_chain)
+
+        # Check if an answer is stored in the session state and display it
+        if 'answer' in st.session_state:
+            st.text_area("RAG:", value=st.session_state.answer, height=200)
 
     if st.session_state.get('check_country', False):
         country = st.text_input("Enter the country you plan to visit:", key="country").lower()
