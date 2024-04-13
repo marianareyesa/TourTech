@@ -17,7 +17,7 @@ from langchain.agents.agent_types import AgentType
 import tiktoken
 
 
-api_key = "api-key"
+api_key = "api key here"
 # Set the API key as an environment variable
 os.environ["OPENAI_API_KEY"] = api_key
 
@@ -25,26 +25,26 @@ llm_model = "gpt-3.5-turbo"
 
 # Define the path to your PDF file
 #change so that it uses a relative path
-pdf_file_path = "/Users/mariana/Desktop/stats/trip_plans/italia.pdf"
+txt_file_path = "trip_plans/italia.txt"
 
 #TODO: check if the pdf is already processed (in txt)
 #If already in txt... use that one. If not, preprocess it.
 #TODO: find a way to index documents and chunk info 
 # Extract text from the PDF
-pdf_text = ""
-with open(pdf_file_path, 'rb') as f:
-    pdf_reader = PdfReader(f)
-    for page_num in range(len(pdf_reader.pages)):
-        page = pdf_reader.pages[page_num]
-        pdf_text += page.extract_text()
+#pdf_text = ""
+#with open(pdf_file_path, 'rb') as f:
+#    pdf_reader = PdfReader(f)
+#    for page_num in range(len(pdf_reader.pages)):
+#        page = pdf_reader.pages[page_num]
+#        pdf_text += page.extract_text()
 
 # Save the extracted text to a temporary text file
-temp_txt_filename = pdf_file_path.replace('.pdf', '.txt')
-with open(temp_txt_filename, 'w', encoding='utf-8') as f:
-    f.write(pdf_text)
+#temp_txt_filename = pdf_file_path.replace('.pdf', '.txt')
+#with open(temp_txt_filename, 'w', encoding='utf-8') as f:
+#    f.write(pdf_text)
 
 # Use the extracted text file for further processing
-loader = TextLoader(file_path=temp_txt_filename, encoding="utf-8")
+loader = TextLoader(file_path=txt_file_path, encoding="utf-8")
 data = loader.load()
 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 data = text_splitter.split_documents(data)

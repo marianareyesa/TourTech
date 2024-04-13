@@ -1,6 +1,6 @@
 import openai
 
-openai.api_key = 'sana keys'
+openai.api_key = 'api-key-here'
 
 def generate_plan(preprocessed_data):
     """
