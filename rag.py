@@ -17,7 +17,7 @@ from langchain.agents.agent_types import AgentType
 import tiktoken
 
 
-api_key = "api key here"
+api_key = "api-key-here"
 # Set the API key as an environment variable
 os.environ["OPENAI_API_KEY"] = api_key
 
@@ -25,7 +25,7 @@ llm_model = "gpt-3.5-turbo"
 
 # Define the path to your PDF file
 #change so that it uses a relative path
-txt_file_path = "trip_plans/italia.txt"
+txt_file_path = "trip_plans/Morocco_20240413152343.txt"
 
 #TODO: check if the pdf is already processed (in txt)
 #If already in txt... use that one. If not, preprocess it.
@@ -64,7 +64,26 @@ conversation_chain = ConversationalRetrievalChain.from_llm(
         memory=memory
         )
 
-query = "Que plan hay en el dia 6 para el viaje de italia?"
+# Conversational loop
+while True:
+    # Prompt user for input
+    prompt = input("You: ")
+
+    # Check if the user wants to exit the conversation
+    if prompt.lower() == "exit":
+        print("Bot: Goodbye!")
+        break
+
+    # Send the prompt to the conversation chain
+    result = conversation_chain({"question": prompt})
+
+    # Get the answer from the result
+    answer = result["answer"]
+
+    # Print the answer
+    print("Bot:", answer)
+
+'''query = "Que plan hay en el dia 6 para el viaje de italia?"
 result = conversation_chain({"question": query})
 answer = result["answer"]
-print(answer)
+print(answer)'''
