@@ -8,82 +8,71 @@ from langchain.memory import ConversationBufferMemory
 from PyPDF2 import PdfReader
 import os
 
-from langchain.chains import RetrievalQA
-from langchain_community.vectorstores import DocArrayInMemorySearch
-from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-from langchain.indexes import VectorstoreIndexCreator
-from langchain_experimental.agents.agent_toolkits.csv.base import create_csv_agent
-from langchain.agents.agent_types import AgentType
-import tiktoken
+def extract_and_process_pdf(pdf_file_paths):
+    all_data = []
+    for pdf_file_path in pdf_file_paths:
+        # Extract text from the PDF
+        pdf_text = ""
+        with open(pdf_file_path, 'rb') as f:
+            pdf_reader = PdfReader(f)
+            for page in pdf_reader.pages:
+                pdf_text += page.extract_text()
 
+        # Create a temporary text file
+        temp_txt_filename = pdf_file_path.replace('.pdf', '.txt')
+        with open(temp_txt_filename, 'w', encoding='utf-8') as f:
+            f.write(pdf_text)
 
-api_key = "api-key-here"
-# Set the API key as an environment variable
-os.environ["OPENAI_API_KEY"] = api_key
+        # Use the extracted text file for further processing
+        loader = TextLoader(file_path=temp_txt_filename, encoding="utf-8")
+        data = loader.load()
+        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        data = text_splitter.split_documents(data)
+        all_data.extend(data)
+    
+    return all_data
 
-llm_model = "gpt-3.5-turbo"
+def create_conversation_chain(processed_texts, api_key):
+    # Set the API key as an environment variable
+    os.environ["OPENAI_API_KEY"] = api_key
+    
+    # Create vector store
+    embeddings = OpenAIEmbeddings()
+    vectorstore = FAISS.from_documents(processed_texts, embedding=embeddings)
 
-# Define the path to your PDF file
-#change so that it uses a relative path
-txt_file_path = "trip_plans/Morocco_20240413152343.txt"
-
-#TODO: check if the pdf is already processed (in txt)
-#If already in txt... use that one. If not, preprocess it.
-#TODO: find a way to index documents and chunk info 
-# Extract text from the PDF
-#pdf_text = ""
-#with open(pdf_file_path, 'rb') as f:
-#    pdf_reader = PdfReader(f)
-#    for page_num in range(len(pdf_reader.pages)):
-#        page = pdf_reader.pages[page_num]
-#        pdf_text += page.extract_text()
-
-# Save the extracted text to a temporary text file
-#temp_txt_filename = pdf_file_path.replace('.pdf', '.txt')
-#with open(temp_txt_filename, 'w', encoding='utf-8') as f:
-#    f.write(pdf_text)
-
-# Use the extracted text file for further processing
-loader = TextLoader(file_path=txt_file_path, encoding="utf-8")
-data = loader.load()
-text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-data = text_splitter.split_documents(data)
-
-# Create vector store
-embeddings = OpenAIEmbeddings()
-vectorstore = FAISS.from_documents(data, embedding=embeddings)
-
-# Create conversation chain
-llm = ChatOpenAI(temperature=0.7, model_name="gpt-4")
-memory = ConversationBufferMemory(
-memory_key='chat_history', return_messages=True)
-conversation_chain = ConversationalRetrievalChain.from_llm(
+    # Create conversation chain
+    llm = ChatOpenAI(temperature=0.7, model_name="gpt-4")
+    memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
+    conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         chain_type="stuff",
         retriever=vectorstore.as_retriever(),
         memory=memory
-        )
+    )
+    return conversation_chain
 
-# Conversational loop
-while True:
-    # Prompt user for input
-    prompt = input("You: ")
+# Input your OpenAI API key here
+api_key = "api-key"
 
-    # Check if the user wants to exit the conversation
-    if prompt.lower() == "exit":
-        print("Bot: Goodbye!")
-        break
+# Define the list of PDF files
+pdf_files = [
+    "/Users/mariana/Desktop/stats/TourTech/trip_plans/italia.pdf",
+    "/Users/mariana/Desktop/stats/TourTech/trip_plans/coracia_bosnia.pdf",
+    "/Users/mariana/Desktop/stats/TourTech/trip_plans/grecia.pdf"
+]
 
-    # Send the prompt to the conversation chain
-    result = conversation_chain({"question": prompt})
+# Define the query
+query = "Que paises estan siendo mencionados?"
 
-    # Get the answer from the result
-    answer = result["answer"]
+# Extract and process PDF text for all documents
+processed_texts = extract_and_process_pdf(pdf_files)
 
-    # Print the answer
-    print("Bot:", answer)
+# Create conversation chain with combined processed text
+conversation_chain = create_conversation_chain(processed_texts, api_key)
 
-'''query = "Que plan hay en el dia 6 para el viaje de italia?"
+# Query the conversation chain
 result = conversation_chain({"question": query})
 answer = result["answer"]
-print(answer)'''
+
+# Print the answer
+print("Answer:", answer)
