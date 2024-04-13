@@ -7,6 +7,7 @@ from langchain_community.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from PyPDF2 import PdfReader
 import os
+import streamlit as st
 
 def extract_and_process_pdf(pdf_file_paths):
     all_data = []
@@ -41,7 +42,7 @@ def create_conversation_chain(processed_texts, api_key):
     vectorstore = FAISS.from_documents(processed_texts, embedding=embeddings)
 
     # Create conversation chain
-    llm = ChatOpenAI(temperature=0.7, model_name="gpt-4")
+    llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo")
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -52,27 +53,35 @@ def create_conversation_chain(processed_texts, api_key):
     return conversation_chain
 
 # Input your OpenAI API key here
-api_key = "api-key"
+api_key = "api_key_here"
 
 # Define the list of PDF files
 pdf_files = [
-    "/Users/mariana/Desktop/stats/TourTech/trip_plans/italia.pdf",
-    "/Users/mariana/Desktop/stats/TourTech/trip_plans/coracia_bosnia.pdf",
-    "/Users/mariana/Desktop/stats/TourTech/trip_plans/grecia.pdf"
+    "trip_plans/italia.pdf",
+    "trip_plans/coracia_bosnia.pdf",
+    "trip_plans/grecia.pdf"
 ]
 
-# Define the query
-query = "Que paises estan siendo mencionados?"
-
-# Extract and process PDF text for all documents
 processed_texts = extract_and_process_pdf(pdf_files)
-
-# Create conversation chain with combined processed text
 conversation_chain = create_conversation_chain(processed_texts, api_key)
+query = "What are the top attractions in Italy?"
 
-# Query the conversation chain
-result = conversation_chain({"question": query})
-answer = result["answer"]
+def generate_conversation(user_input, conversation_chain):
+    # Check if the user wants to exit the conversation
+    if user_input.lower() == "exit":
+        return "Goodbye!"
 
-# Print the answer
-print("Answer:", answer)
+    # Send the user input to the conversation chain
+    result = conversation_chain({"question": user_input})
+
+    # Get the answer from the result
+    answer = result["answer"]
+
+    # Return the answer directly
+    return answer
+
+
+if __name__ == "__main__":
+    generate_conversation(query, conversation_chain)
+
+
