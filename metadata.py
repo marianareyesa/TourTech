@@ -88,8 +88,15 @@ def extract_intention_from_query(query):
     # If no specific keyword is found, return a default intention
     return "general"
 
+def filter_relevant_information(processed_texts, document_metadata, query_intention):
+    relevant_texts = []
+    for text, intention in zip(processed_texts, document_metadata.values()):
+        if intention == query_intention:
+            relevant_texts.append(text)
+    return relevant_texts
+
 # Input your OpenAI API key here
-api_key = "api-key"
+api_key = "api-key-here"
 
 pdf_files = [
     "trip_plans/italia.pdf",
@@ -101,30 +108,30 @@ pdf_files = [
 ]
 
 # Define the query
-query = "Cual es el plan de praga?"
+#query = "Cual es el plan de praga?"
 
-# Extract and process PDF text for all documents
-processed_texts, document_metadata = extract_and_process_pdf(pdf_files)
+def generate_conversation(user_input):
+    # Check if the user wants to exit the conversation
+    if user_input.lower() == "exit":
+        return "Goodbye!"
+    
+        # Extract and process PDF text for all documents
+    processed_texts, document_metadata = extract_and_process_pdf(pdf_files)
 
-# Extract intention from the query
-query_intention = extract_intention_from_query(query)
+    # Extract intention from the query
+    query_intention = extract_intention_from_query(user_input)
 
-def filter_relevant_information(processed_texts, document_metadata, query_intention):
-    relevant_texts = []
-    for text, intention in zip(processed_texts, document_metadata.values()):
-        if intention == query_intention:
-            relevant_texts.append(text)
-    return relevant_texts
+    # Extract and process PDF text for relevant documents
+    relevant_texts = filter_relevant_information(processed_texts, document_metadata, query_intention)
 
-# Extract and process PDF text for relevant documents
-relevant_texts = filter_relevant_information(processed_texts, document_metadata, query_intention)
+    # Create conversation chain with relevant processed text
+    conversation_chain = create_conversation_chain(relevant_texts, api_key)
 
-# Create conversation chain with relevant processed text
-conversation_chain = create_conversation_chain(relevant_texts, api_key)
+    # Send the user input to the conversation chain
+    result = conversation_chain({"question": user_input})
 
-# Query the conversation chain
-result = conversation_chain({"question": query})
-answer = result["answer"]
+    # Get the answer from the result
+    answer = result["answer"]
 
-# Print the answer
-print("Answer:", answer)
+    # Return the answer directly
+    return answer

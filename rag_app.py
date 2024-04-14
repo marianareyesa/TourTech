@@ -1,6 +1,8 @@
 import streamlit as st
 from travel_generator import generate_and_save_travel_plan, check_existing_travel_plan
-from rag import generate_conversation, conversation_chain
+#from rag import generate_conversation, conversation_chain
+from metadata import generate_conversation
+
 
 def display_rag_conversation():
     # Custom CSS for chat bubble styling
@@ -52,7 +54,7 @@ def display_rag_conversation():
             })
 
             # Get the response from RAG
-            response = generate_conversation(user_message, conversation_chain)
+            response = generate_conversation(user_message)
 
             # Append RAG response to conversation history
             conversation_history.append({

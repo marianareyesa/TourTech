@@ -6,7 +6,7 @@ import glob
 
 # Ensure you replace this with your actual OpenAI API key
 # It's recommended to use an environment variable for this.
-openai.api_key = os.getenv('OPENAI_API_KEY', 'api_key')
+openai.api_key = os.getenv('OPENAI_API_KEY', 'api-key-here')
 
 def generate_travel_plan(country, num_days):
     # Define the conversation prompt using country and num_days
@@ -33,7 +33,7 @@ def generate_travel_plan(country, num_days):
 def save_travel_plan_to_txt(country, plan):
     # Generate a unique filename using country name and current timestamp
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = f"travel_plans/{country.replace(' ', '_')}_{timestamp}.txt"
+    filename = f"trip_plans/{country.replace(' ', '_')}_{timestamp}.txt"
     # Ensure the travel_plans directory exists
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     # Open a .txt file in write mode with the generated filename
@@ -51,6 +51,6 @@ def check_existing_travel_plan(country):
     # Normalize the country name to match the filename pattern
     country_pattern = country.replace(' ', '_').lower()
     # Search for existing plans in the travel_plans directory
-    existing_files = glob.glob(f'travel_plans/{country_pattern}_*.txt')
+    existing_files = glob.glob(f'trip_plans/{country_pattern}_*.txt')
     return len(existing_files) > 0
 

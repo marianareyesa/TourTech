@@ -53,13 +53,16 @@ def create_conversation_chain(processed_texts, api_key):
     return conversation_chain
 
 # Input your OpenAI API key here
-api_key = "api_key_here"
+api_key = "api-key-here"
 
 # Define the list of PDF files
 pdf_files = [
     "trip_plans/italia.pdf",
-    "trip_plans/coracia_bosnia.pdf",
-    "trip_plans/grecia.pdf"
+    "trip_plans/croacia_bosnia.pdf",
+    "trip_plans/grecia.pdf",
+    "trip_plans/condiciones_comerciales.pdf",
+    "trip_plans/spain.pdf",
+    "trip_plans/praga.pdf"
 ]
 
 processed_texts = extract_and_process_pdf(pdf_files)
