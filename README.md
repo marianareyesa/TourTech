@@ -5,4 +5,5 @@
 
 
 # RAG Architecture
-<img width="811" alt="Screen Shot 2024-04-10 at 2 59 45 PM" src="https://github.com/marianareyesa/TourTech/assets/126504470/12228a3d-ecd7-40a0-ad0e-c414175a5287">
+<img width="867" alt="Screen Shot 2024-04-14 at 4 47 55 PM" src="https://github.com/marianareyesa/TourTech/assets/126504470/92773ecd-07af-4194-9bc2-7d088343d0de">
+
