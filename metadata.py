@@ -77,7 +77,8 @@ def extract_intention_from_query(query):
         "grecia": "grecia",
         "condiciones": "condiciones_comerciales",
         "españa": "spain",
-        "praga": "praga"
+        "praga": "praga",
+        "alemania": "alemania"
     }
     
     # Check if any of the keywords are present in the query
@@ -104,7 +105,8 @@ pdf_files = [
     "trip_plans/grecia.pdf",
     "trip_plans/condiciones_comerciales.pdf",
     "trip_plans/spain.pdf",
-    "trip_plans/praga.pdf"
+    "trip_plans/praga.pdf",
+    "trip_plans/alemania.pdf"
 ]
 
 # Define the query
