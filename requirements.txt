@@ -10,3 +10,4 @@ langchain[docarray]
 PyPDF2
 faiss-cpu
 nltk
+altair < 5.0.0
