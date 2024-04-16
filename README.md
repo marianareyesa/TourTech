@@ -1,4 +1,8 @@
-# Instructions:
+
+# TourTech
+A B2B startup that works with travel agencies to ensure efficient and tailored travel planning for all destinations, leveraging both historical agency data and advanced AI capabilities.
+
+# Instructions to run the webapp:
 1. Add the openAI api key to the files metadata.py and travel_generator.py in their designates slots.
 2. run requirements.txt file
 3. if faced with any problems, run the following commands in the terminal:
